@@ -65,32 +65,33 @@ class ldapHelper extends WireData implements Module, ConfigurableModule
         $this->addHookAfter('Modules::saveModuleConfigData', $this, 'hookModuleSave');
     }
 
-    public function ldapHelperRegistradeUser(Array $nuser) {
+    public function ldapHelperRegistradeUser(Array $user) {
 
-      $username = $nuser["username"];
+      $username = $user["username"];
 
       // LDAP user anlegen
       $info["objectclass"][0] = "top";
       $info["objectclass"][1] = "person";
       $info["objectclass"][2] = "organizationalPerson";
       $info["objectclass"][3] = "inetorgperson";
-      $info["cn"] = $nuser["firstname"];
-      $info["sn"] = $nuser["lastname"];
-      $info["givenName"] = $nuser["username"];
-      $info["description"] = "ffmyk";
+      $info["cn"] = $user["firstname"];
+      $info["sn"] = $user["lastname"];
+      $info["givenName"] = $user["username"];
+      $info["description"] = "";
 
-      $password = $this->makeSshaPassword($nuser["password"]);
+      $password = $this->makeSshaPassword($user["password"]);
 
       // If you have the plain text password instead, you could use:
       $info['userPassword'] = $password;
 
-      $connect = $this->ldapHelperConnect(); // Connect to LDAP Server
-      if(!$connect) return false; // Connection Failed
+	// Connect to LDAP Server
+      if(!$connect = $this->ldapHelperConnect()) return false; 
 
       // bind mit passendem dn für aktulisierenden Zugriff
       if(!$r= $this->ldapHelperWrite($connect)) return false;
       // Add User to the Database
       $r= ldap_add($connect, "uid=$username,ou=People,dc=ffmyk,dc=de", $info);
+	$this->log->save('ldap', 'Create User: $username');
 
       // Verbindung schließen
       ldap_close($connect);
