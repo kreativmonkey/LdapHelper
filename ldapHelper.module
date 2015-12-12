@@ -91,7 +91,7 @@ class ldapHelper extends WireData implements Module, ConfigurableModule
       if(!$r= $this->ldapHelperWrite($connect)) return false;
       // Add User to the Database
       $r= ldap_add($connect, "uid=$username,ou=People,dc=ffmyk,dc=de", $info);
-	$this->log->save('ldap', 'Create User: $username');
+	$this->log->save('ldap_helper', 'Create User: $username');
 
       // Verbindung schließen
       ldap_close($connect);
